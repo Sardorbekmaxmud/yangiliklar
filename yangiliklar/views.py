@@ -66,7 +66,7 @@ class CreateNewApiView(APIView):
 
 class UpdateNewApiView(APIView):
     def patch(self,request,*args,**kwargs):
-        instance = get_object_or_404(CategoryModel,pk=kwargs['new_id'])
+        instance = get_object_or_404(NewModel,pk=kwargs['new_id'])
         serializer = NewSerializer(instance,data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -78,3 +78,13 @@ class DeleteNewApiView(APIView):
         new = get_object_or_404(NewModel,pk=kwargs['new_id'])
         new.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# -------------------------------------------------------------------------------------------
+class CategoryNameApiView(APIView):
+    def get(self,request,*args,**kwargs):
+        try:
+            category = NewModel.objects.filter(category=kwargs['category_id'])
+            serializer = NewSerializer(category,many=True)
+            return Response(serializer.data)
+        except:
+            return Response(serializer.errors)

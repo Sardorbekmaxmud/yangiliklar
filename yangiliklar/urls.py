@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (AllCategoryApiView,DetailCategoryApiView,CreateCategoryApiView,UpdateCategoryApiView,DeleteCategoryApiView,
-                    AllNewsApiView,DetailNewApiView,CreateNewApiView,UpdateNewApiView,DeleteNewApiView)
+                    AllNewsApiView,DetailNewApiView,CreateNewApiView,UpdateNewApiView,DeleteNewApiView,
+                    CategoryNameApiView)
 
 urlpatterns = [
     #category------------------------------------------------------------------------
@@ -15,4 +16,6 @@ urlpatterns = [
     path('news/create/',CreateNewApiView.as_view()),
     path('news/update/<int:new_id>/',UpdateNewApiView.as_view()),
     path('news/delete/<int:new_id>/',DeleteNewApiView.as_view()),
+    # category name url---------------------------------------------------------------
+    path('category/name/<int:category_id>/',CategoryNameApiView.as_view()),
 ]
