@@ -1,89 +1,63 @@
-from django.shortcuts import render,get_object_or_404
-from rest_framework.response import Response
+from django.shortcuts import render
+from rest_framework import generics,permissions
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework.response import Response
 from .models import CategoryModel,NewModel
 from .serializer import CategorySerializer,NewSerializer
+from .permissions import IsOwnerPermissions
 
 # Create your views here.
-
 # category CRUD-----------------------------------------------------------------
-class AllCategoryApiView(APIView):
-    def get(self,request,*args,**kwargs):
-        all_category = CategoryModel.objects.all()
-        serializer = CategorySerializer(all_category,many=True)
-        return Response(serializer.data)
+class AllCategoryView(generics.ListAPIView):
+    queryset = CategoryModel.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-class DetailCategoryApiView(APIView):
-    def get(self,request,*args,**kwargs):
-        category = get_object_or_404(CategoryModel,pk=kwargs['category_id'])
-        serializer = CategorySerializer(category)
-        return Response(serializer.data)
+class AllUserCategoryView(generics.ListAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    def get_queryset(self):
+        user = self.request.user
+        return CategoryModel.objects.filter(user=user)
 
-class CreateCategoryApiView(APIView):
-    def post(self,request,*args,**kwargs):
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class CreateCategoryView(generics.CreateAPIView):
+    queryset = CategoryModel.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsOwnerPermissions,)
 
-class UpdateCategoryApiView(APIView):
-    def patch(self,request,*args,**kwargs):
-        instance = get_object_or_404(CategoryModel,pk=kwargs['category_id'])
-        serializer = CategorySerializer(instance,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-class DeleteCategoryApiView(APIView):
-    def delete(self,request,*args,**kwargs):
-        category = get_object_or_404(CategoryModel,pk=kwargs['category_id'])
-        category.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class DetailUpdateDeleteCategoryView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CategoryModel.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsOwnerPermissions,)
 
 # news CRUD -----------------------------------------------------------------------
-class AllNewsApiView(APIView):
-    def get(self,request,*args,**kwargs):
-        all_news = NewModel.objects.all()
-        serializer = NewSerializer(all_news,many=True)
-        return Response(serializer.data)
+class AllNewsView(generics.ListAPIView):
+    queryset = NewModel.objects.all()
+    serializer_class = NewSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-class DetailNewApiView(APIView):
-    def get(self,request,*args,**kwargs):
-        new = get_object_or_404(NewModel,pk=kwargs['new_id'])
-        serializer = NewSerializer(new)
-        return Response(serializer.data)
+class AllNewsUserView(generics.ListAPIView):
+    def get_queryset(self):
+        user = self.request.user
+        return NewModel.objects.filter(user=user)
+    serializer_class = NewSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-class CreateNewApiView(APIView):
-    def post(self,request,*args,**kwargs):
-        serializer = NewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class CreateNewView(generics.CreateAPIView):
+    queryset = NewModel.objects.all()
+    serializer_class = NewSerializer
+    permission_classes = (IsOwnerPermissions,)
 
-class UpdateNewApiView(APIView):
-    def patch(self,request,*args,**kwargs):
-        instance = get_object_or_404(NewModel,pk=kwargs['new_id'])
-        serializer = NewSerializer(instance,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class DetailUpdateDeleteNewView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = NewModel.objects.all()
+    serializer_class = NewSerializer
+    permission_classes = (IsOwnerPermissions,)
 
-class DeleteNewApiView(APIView):
-    def delete(self,request,*args,**kwargs):
-        new = get_object_or_404(NewModel,pk=kwargs['new_id'])
-        new.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-# -------------------------------------------------------------------------------------------
+# # -------------------------------------------------------------------------------------------
 class CategoryNameApiView(APIView):
     def get(self,request,*args,**kwargs):
         try:
-            category = NewModel.objects.filter(category=kwargs['category_id'])
+            category = NewModel.objects.filter(category=kwargs['pk'])
             serializer = NewSerializer(category,many=True)
             return Response(serializer.data)
         except:
