@@ -16,6 +16,7 @@ class AllCategoryView(generics.ListAPIView):
 class AllUserCategoryView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = (permissions.IsAuthenticated,)
+
     def get_queryset(self):
         user = self.request.user
         return CategoryModel.objects.filter(user=user)
@@ -53,7 +54,7 @@ class DetailUpdateDeleteNewView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NewSerializer
     permission_classes = (IsOwnerPermissions,)
 
-# # -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 class CategoryNameApiView(APIView):
     def get(self,request,*args,**kwargs):
         try:
